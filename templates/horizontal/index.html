@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{windowTitle}}</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <section data-widget class="widget widget--horizontal" aria-label="{{windowTitle}}">
+    <div class="drag" data-tauri-drag-region title="Drag to move">
+      <span class="brand" data-slot="title">{{windowTitle}}</span>
+      <span class="desk" data-slot="desk-name">{{deskName}}</span>
+      <p class="status" data-slot="status" data-online="false">Offline</p>
+    </div>
+    <div class="buttons" data-slot="buttons"></div>
+    <div class="meta">
+      <p class="counter" title="Questions recorded locally today">
+        <span data-slot="counter">0</span>
+      </p>
+    </div>
+    <div class="chrome">
+      <button type="button" data-action="always-on-top" aria-pressed="false" title="Always on top">📌</button>
+      <button type="button" data-action="cycle-template" title="Toggle Template" aria-label="Toggle template">🔁</button>
+      <button type="button" data-action="settings" title="Settings">⚙️</button>
+      <button type="button" data-action="help" title="Help" aria-label="Help">❔</button>
+      <button type="button" data-action="minimize" title="Minimize" aria-label="Minimize">__</button>
+      <button type="button" data-action="close" title="Close" aria-label="Close">✖️</button>
+    </div>
+  </section>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StatTracker Settings</title>
+  <link rel="stylesheet" href="css/settings.css" />
+</head>
+<body>
+  <main class="wrap">
+    <h1>StatTracker Settings</h1>
+    <p class="lede">Choose the web app, desk, and local storage for this computer. These values can be changed later from the widget.</p>
+
+    <form id="settings-form" novalidate>
+      <fieldset>
+        <legend>Web application</legend>
+        <div class="field">
+          <label for="base_url">Domain and base path</label>
+          <input id="base_url" name="base_url" type="url" required placeholder="https://example.com/" autocomplete="url" />
+          <p class="hint">Include the trailing slash. After first setup, desks are read from the local cache unless you refresh them.</p>
+        </div>
+        <div class="field">
+          <label for="desk_id">Desk</label>
+          <div class="row">
+            <select id="desk_id" name="desk_id" required>
+              <option value="">Choose a desk</option>
+            </select>
+            <button type="button" class="secondary" id="refresh-desks">Refresh</button>
+          </div>
+          <p class="hint">Refreshing this list pulls an updated list of desks from the server.</p>
+        </div>
+        <p class="status" id="desk-status" role="status">&nbsp;</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Identity</legend>
+        <div class="field">
+          <label for="org_name">Organization name</label>
+          <input id="org_name" name="org_name" type="text" />
+        </div>
+        <div class="field">
+          <label for="window_title">Window title</label>
+          <input id="window_title" name="window_title" type="text" value="StatTracker" />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Storage</legend>
+        <div class="field">
+          <label for="storage_directory">Local files</label>
+          <div class="row">
+            <input id="storage_directory" name="storage_directory" type="text" required readonly />
+            <button type="button" class="secondary" id="browse">Browse</button>
+          </div>
+          <p class="hint">SQLite cache, configuration, and templates are stored here. Use Browse to choose a folder; the path cannot be typed.</p>
+        </div>
+        <div class="field">
+          <label for="active_template">Template</label>
+          <select id="active_template" name="active_template">
+            <option value="horizontal">Horizontal</option>
+            <option value="vertical">Vertical</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Behavior</legend>
+        <label class="check">
+          <input id="autostart" name="autostart" type="checkbox" checked />
+          Start StatTracker when I sign in
+        </label>
+        <label class="check">
+          <input id="always_on_top" name="always_on_top" type="checkbox" />
+          Always on top
+        </label>
+        <div class="field">
+          <label for="unfocused_opacity">Opacity when always-on-top and not hovered (0–100)</label>
+          <input id="unfocused_opacity" name="unfocused_opacity" type="number" min="0" max="100" value="55" />
+        </div>
+        <div class="field">
+          <label for="update_mode">Updates</label>
+          <select id="update_mode" name="update_mode">
+            <option value="notify">Notify me when an update is available</option>
+            <option value="silent">Install updates automatically</option>
+          </select>
+          <p class="hint">Notify shows GitHub release notes for versions newer than this computer.</p>
+        </div>
+        <label class="check">
+          <input id="inactivity_enabled" name="inactivity_enabled" type="checkbox" />
+          Prompt after inactivity
+        </label>
+        <div class="field">
+          <label for="inactivity_minutes">Inactivity interval (minutes)</label>
+          <input id="inactivity_minutes" name="inactivity_minutes" type="number" min="1" value="15" />
+        </div>
+        <div class="field">
+          <label for="inactivity_message">Inactivity message</label>
+          <textarea id="inactivity_message" name="inactivity_message">No questions have been recorded recently. Please remember to log desk activity.</textarea>
+        </div>
+      </fieldset>
+
+	  <div class="save-panel">
+        <p class="status" id="form-status" role="alert"></p>
+        <div class="actions">
+          <button type="submit" class="primary" id="save">Save</button>
+        </div>
+	  </div>
+    </form>
+  </main>
+  <script src="js/settings.js"></script>
+</body>
+</html>

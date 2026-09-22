@@ -1,0 +1,164 @@
+:root {
+	font-family: "Segoe UI", "Avenir Next", Calibri, sans-serif;
+}
+
+@layer reset, widget;
+
+@layer reset {
+  html, body {
+    margin: 0;
+    background: transparent;
+	font-size: 16px;
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+  }
+}
+
+@layer widget {
+  .widget {
+    --ink: oklch(0.97 0.02 80);
+    --muted: oklch(0.86 0.03 70);
+    --panel: oklch(0.32 0.08 25);
+    --panel-edge: oklch(0.22 0.05 25);
+    --hit: oklch(0.48 0.12 28);
+    --flash: oklch(0.85 0.16 95);
+    display: flex;
+    align-items: stretch;
+    gap: 0.45rem;
+    min-height: 3.5rem;
+	max-height: 3.5rem;
+    padding: 0.4rem;
+    border: 1px solid var(--panel-edge);
+    border-radius: 0.85rem;
+    background:
+      linear-gradient(180deg, color-mix(in oklab, white 16%, transparent), transparent 42%),
+      var(--panel);
+    color: var(--ink);
+    box-shadow: 0 0.4rem 1rem color-mix(in oklab, black 35%, transparent);
+	overflow-x: scroll;
+	overflow-y: hidden;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+  }
+
+  .drag {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 6.5rem;
+    max-width: 8.5rem;
+    padding: 0.35rem 0.55rem;
+    border-radius: 0.55rem;
+    background: color-mix(in oklab, black 18%, transparent);
+    cursor: move;
+    user-select: none;
+  }
+
+  .drag * {
+    pointer-events: none;
+  }
+
+  .brand {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .desk {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .buttons {
+    display: flex;
+    flex: 1;
+    gap: 0.35rem;
+    align-items: stretch;
+  }
+
+  button.tally {
+    min-width: 5.6rem;
+    min-height: 3.5rem;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid color-mix(in oklab, black 35%, transparent);
+    border-radius: 0.55rem;
+    background: color-mix(in oklab, var(--hit) 80%, black 10%);
+    color: var(--ink);
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  button.tally:hover,
+  button.tally:focus-visible {
+    background: color-mix(in oklab, var(--hit) 70%, white 18%);
+  }
+
+  button.tally:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 2px;
+  }
+
+  button.tally:not(.is-pending) {
+	transition: all 0.5s ease-out;
+  }
+  button.tally.is-flash,
+  button.tally.is-pending {
+    background: var(--flash);
+    color: oklch(0.25 0.05 50);
+  }
+
+  .meta, .chrome {
+    display: flex;
+    justify-content: center;
+    gap: 0.2rem;
+  }
+  .meta { flex-direction: column; text-align: center; font-size:1rem; }
+  .chrome {
+	flex-wrap: wrap-reverse;
+	align-items: center;
+	justify-content: center;
+	width:6.5rem;
+	min-width:6.5rem;
+	max-height:3.5rem;
+	overflow: hidden;
+  }
+
+  .status, .counter {
+    margin: 0;
+  }
+  .status { font-variant: small-caps; text-transform: uppercase; letter-spacing: 0.125em; font-size:.66rem; }
+  .status[data-online="true"] {
+    color: oklch(0.86 0.12 145);
+  }
+  .counter { font-size: 1.5rem; min-width: 5rem; }
+
+  .status[data-online="false"] {
+    color: rgba(242, 154, 102, 1);
+	text-decoration: line-through;
+  }
+
+  .chrome button {
+    min-height: 1.65rem;
+	width:2rem;
+	text-align: center;
+    padding: 0 0.45rem;
+    border: 0;
+    border-radius: 0.35rem;
+    background: color-mix(in oklab, black 22%, transparent);
+    color: var(--ink);
+    font-size: 0.72rem;
+  }
+
+  .chrome button:hover,
+  .chrome button:focus-visible,
+  .chrome button.is-active {
+    background: color-mix(in oklab, white 22%, transparent);
+  }
+}

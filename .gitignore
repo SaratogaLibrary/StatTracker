@@ -1,0 +1,9 @@
+/node_modules
+/src-tauri/target
+/src-tauri/.tauri
+*.key
+*.sig
+*.key.pub
+WixTools
+.DS_Store
+Thumbs.db

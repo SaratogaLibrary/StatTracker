@@ -1,0 +1,33 @@
+.help-list {
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.help-item {
+  margin: 0 0 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.help-item h2 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.help-item p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.help-item p.is-empty {
+  font-style: italic;
+}
+
+#help-status:not([hidden]) {
+  display: block;
+  margin: 0 0 1rem;
+}

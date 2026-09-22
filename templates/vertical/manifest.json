@@ -1,0 +1,8 @@
+{
+  "name": "Vertical",
+  "entry": "index.html",
+  "window": {
+    "width": 188,
+    "height": 520
+  }
+}

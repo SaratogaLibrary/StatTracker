@@ -1,0 +1,88 @@
+{
+  "package": {
+    "productName": "StatTracker",
+    "version": "0.1.0"
+  },
+  "build": {
+    "distDir": "../ui",
+    "devPath": "../ui",
+    "withGlobalTauri": true,
+    "beforeDevCommand": "",
+    "beforeBuildCommand": ""
+  },
+  "tauri": {
+    "macOSPrivateApi": true,
+    "allowlist": {
+      "all": false,
+      "fs": { "all": false },
+      "http": { "all": false },
+      "shell": { "all": false },
+      "path": { "all": false },
+      "os": { "all": false },
+      "clipboard": { "all": false },
+      "globalShortcut": { "all": false },
+      "notification": { "all": false },
+      "process": { "all": false },
+      "dialog": {
+        "all": false,
+        "ask": true,
+        "message": true
+      },
+      "window": {
+        "all": false,
+        "startDragging": true,
+        "setTitle": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "identifier": "org.sspl.stattracker",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "category": "Productivity",
+      "shortDescription": "Desk widget for recording question tallies",
+      "longDescription": "A chromeless desktop widget that records reference desk question tallies, handles offline operation, and syncs with a web backend if available.",
+      "resources": ["../templates"],
+      "windows": {
+        "digestAlgorithm": "sha256",
+        "nsis": {
+          "displayLanguageSelector": false,
+          "installerIcon": "icons/icon.ico"
+        }
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "updater": {
+      "active": true,
+      "dialog": false,
+      "endpoints": [
+        "https://github.com/SaratogaLibrary/StatTracker/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQ2RTg4Njk0QUY2RDFEMjUKUldRbEhXMnZsSWJvMWxyQWsxM2N6cFQ5Tm9WbDdGOVhuNEtCVm9KcXB4WGRqTFJxbUpjYVduanMK"
+    },
+    "windows": [
+      {
+        "label": "main",
+        "title": "StatTracker",
+        "url": "index.html",
+        "width": 480,
+        "height": 88,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": false,
+        "visible": false,
+        "skipTaskbar": false,
+        "fullscreen": false,
+        "fileDropEnabled": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Horizontal",
+  "entry": "index.html",
+  "window": {
+    "width": 760,
+    "height": 92
+  }
+}

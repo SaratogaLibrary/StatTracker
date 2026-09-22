@@ -1,0 +1,14 @@
+{
+  "name": "stattracker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chromeless desktop widget for recording reference desk question tallies",
+  "scripts": {
+    "dev": "node scripts/tauri.js dev",
+    "build": "node scripts/tauri.js build",
+    "tauri": "node scripts/tauri.js"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.6.3"
+  }
+}
