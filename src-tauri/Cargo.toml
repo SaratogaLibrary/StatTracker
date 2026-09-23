@@ -1,6 +1,6 @@
 [package]
 name = "stattracker"
-version = "0.1.0"
+version = "0.1.1"
 description = "Chromeless desktop widget for recording reference desk question tallies"
 authors = ["StatTracker"]
 license = "MIT"
