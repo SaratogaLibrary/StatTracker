@@ -7,6 +7,10 @@ const root = path.join(__dirname, "..");
 const cargoBin = path.join(os.homedir(), ".cargo", "bin");
 
 function cargoTargetDir() {
+  // GitHub's tauri-action looks under src-tauri/target; keep Cargo's default on CI.
+  if (process.env.CI || process.env.GITHUB_ACTIONS) {
+    return null;
+  }
   const home = os.homedir();
   switch (process.platform) {
     case "win32":
@@ -29,8 +33,10 @@ function cargoTargetDir() {
 const targetDir = cargoTargetDir();
 
 process.env.PATH = `${cargoBin}${path.delimiter}${process.env.PATH}`;
-process.env.CARGO_TARGET_DIR = targetDir;
-fs.mkdirSync(targetDir, { recursive: true });
+if (targetDir) {
+  process.env.CARGO_TARGET_DIR = targetDir;
+  fs.mkdirSync(targetDir, { recursive: true });
+}
 
 const tauriCli = path.join(root, "node_modules", "@tauri-apps", "cli", "tauri.js");
 const args = process.argv.slice(2);
