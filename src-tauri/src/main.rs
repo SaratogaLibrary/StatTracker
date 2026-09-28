@@ -32,6 +32,7 @@ fn main() {
             commands::get_stats,
             commands::open_settings,
             commands::open_help,
+            commands::close_system_window,
             commands::set_widget_size,
             commands::widget_outer_rect,
             commands::place_widget,
@@ -66,14 +67,17 @@ fn main() {
                     tauri::async_runtime::spawn(async move {
                         let _ = sync::refresh_types(&startup, &startup_config).await;
                     });
-                    let update_handle = handle.clone();
-                    tauri::async_runtime::spawn(async move {
-                        sleep_ms(2000).await;
-                        if let Ok(Some(notice)) = commands::check_updates(update_handle.clone()).await
-                        {
-                            let _ = update_handle.emit_all("update-available", notice);
-                        }
-                    });
+                    if config.update_mode != "manual" {
+                        let update_handle = handle.clone();
+                        tauri::async_runtime::spawn(async move {
+                            sleep_ms(2000).await;
+                            if let Ok(Some(notice)) =
+                                commands::check_updates(update_handle.clone(), None).await
+                            {
+                                let _ = update_handle.emit_all("update-available", notice);
+                            }
+                        });
+                    }
                 }
                 _ => {
                     let storage = config::default_storage_dir(&handle).ok();

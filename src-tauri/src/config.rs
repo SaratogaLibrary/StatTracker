@@ -88,7 +88,7 @@ impl Config {
         if self.unfocused_opacity > 100 {
             self.unfocused_opacity = 100;
         }
-        if self.update_mode != "silent" {
+        if self.update_mode != "silent" && self.update_mode != "manual" {
             self.update_mode = "notify".into();
         }
         if !is_safe_template_id(&self.active_template) {
@@ -187,6 +187,24 @@ pub fn template_dir(storage: &Path, template_id: &str) -> AppResult<PathBuf> {
     let root = storage.join("templates");
     let dir = root.join(template_id);
     ensure_inside(&root, &dir)
+}
+
+const SYSTEM_UI_CSS: &str = "system-ui.css";
+const SYSTEM_UI_CSS_MAX_BYTES: u64 = 128 * 1024;
+
+pub fn read_system_ui_css(storage: &Path, template_id: &str) -> Option<String> {
+    let dir = template_dir(storage, template_id).ok()?;
+    let path = dir.join(SYSTEM_UI_CSS);
+    let meta = fs::metadata(&path).ok()?;
+    if !meta.is_file() || meta.len() == 0 || meta.len() > SYSTEM_UI_CSS_MAX_BYTES {
+        return None;
+    }
+    let css = fs::read_to_string(&path).ok()?;
+    if css.trim().is_empty() {
+        None
+    } else {
+        Some(css)
+    }
 }
 
 fn ensure_inside(root: &Path, candidate: &Path) -> AppResult<PathBuf> {
@@ -340,6 +358,40 @@ mod tests {
         );
         let unc = strip_verbatim_prefix(PathBuf::from(r"\\?\UNC\server\share\folder"));
         assert_eq!(unc, PathBuf::from(r"\\server\share\folder"));
+    }
+
+    #[test]
+    fn update_mode_allows_notify_silent_and_manual() {
+        let mut config = Config::defaults("/tmp/stattracker-update-mode".into());
+        config.update_mode = "manual".into();
+        config.normalize();
+        assert_eq!(config.update_mode, "manual");
+        config.update_mode = "silent".into();
+        config.normalize();
+        assert_eq!(config.update_mode, "silent");
+        config.update_mode = "unexpected".into();
+        config.normalize();
+        assert_eq!(config.update_mode, "notify");
+    }
+
+    #[test]
+    fn system_ui_css_is_optional_and_ignores_js() {
+        let root = std::env::temp_dir().join(format!(
+            "stattracker-system-ui-{}",
+            std::process::id()
+        ));
+        let template = root.join("templates").join("horizontal");
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(&template).unwrap();
+        assert!(read_system_ui_css(&root, "horizontal").is_none());
+        fs::write(template.join("system-ui.js"), "alert(1)").unwrap();
+        assert!(read_system_ui_css(&root, "horizontal").is_none());
+        fs::write(template.join("system-ui.css"), "body { color: red; }").unwrap();
+        assert_eq!(
+            read_system_ui_css(&root, "horizontal").as_deref(),
+            Some("body { color: red; }")
+        );
+        let _ = fs::remove_dir_all(&root);
     }
 }
 

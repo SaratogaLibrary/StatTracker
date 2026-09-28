@@ -1,6 +1,7 @@
 (() => {
   const list = document.getElementById("help-list");
   const status = document.getElementById("help-status");
+  const versionLabel = document.getElementById("app-version");
   const ATTRS = ["title", "aria-label", "placeholder", "alt"];
 
   function escapeHtml(value) {
@@ -15,10 +16,15 @@
     const windowTitle = config.window_title || "StatTracker";
     const deskName = config.desk_name || "this desk";
     const orgName = config.org_name || "";
+    const appVersion = String(config.app_version || config.appVersion || "").replace(
+      /^v/i,
+      "",
+    );
     return String(source)
       .replaceAll("{{windowTitle}}", windowTitle)
       .replaceAll("{{deskName}}", deskName)
-      .replaceAll("{{orgName}}", orgName);
+      .replaceAll("{{orgName}}", orgName)
+      .replaceAll("{{appVersion}}", appVersion);
   }
 
   function applyPlaceholders(root, config) {
@@ -63,12 +69,20 @@
 
   function render(bootstrap, api) {
     const config = bootstrap?.config || {};
-    applyPlaceholders(document.documentElement, config);
+    const version = String(bootstrap?.app_version || bootstrap?.appVersion || "").trim();
+    applyPlaceholders(document.documentElement, {
+      ...config,
+      app_version: version,
+    });
     const heading = fillPlaceholders("{{windowTitle}} Info", config);
     document.title = heading;
+    window.StatTrackerSystemWindow?.applyFromBootstrap(bootstrap);
     const currentWindow = api?.window?.getCurrent?.() || api?.window?.appWindow;
     if (currentWindow?.setTitle) {
       currentWindow.setTitle(heading).catch(() => {});
+    }
+    if (versionLabel) {
+      versionLabel.hidden = !version;
     }
     const types = bootstrap?.question_types || [];
     list.replaceChildren();
@@ -96,6 +110,7 @@
   async function start() {
     const api = await whenTauriReady();
     const invoke = api.tauri.invoke;
+    window.StatTrackerSystemWindow?.bindEscapeToClose(invoke);
     await api.event.listen("config-saved", (event) => {
       render(event.payload || {}, api);
     });

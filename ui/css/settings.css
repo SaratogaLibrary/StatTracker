@@ -176,7 +176,12 @@ button {
   border-color: var(--line);
 }
 
-.primary:disabled {
+.primary:disabled,
+.secondary:disabled {
   opacity: 0.6;
   cursor: wait;
+}
+
+#check-updates {
+  justify-self: start;
 }

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>StatTracker Settings</title>
   <link rel="stylesheet" href="css/settings.css" />
+  <style id="system-ui-css"></style>
 </head>
 <body>
   <main class="wrap">
@@ -82,8 +83,10 @@
           <select id="update_mode" name="update_mode">
             <option value="notify">Notify me when an update is available</option>
             <option value="silent">Install updates automatically</option>
+            <option value="manual">Don't check for updates automatically</option>
           </select>
-          <p class="hint">Notify shows GitHub release notes for versions newer than this computer.</p>
+          <p class="hint" id="update-mode-hint">Notify shows GitHub release notes for versions newer than this computer.</p>
+          <button type="button" class="secondary" id="check-updates" hidden>Check for updates</button>
         </div>
         <label class="check">
           <input id="inactivity_enabled" name="inactivity_enabled" type="checkbox" />
@@ -107,6 +110,7 @@
 	  </div>
     </form>
   </main>
+  <script src="js/system-window.js"></script>
   <script src="js/settings.js"></script>
 </body>
 </html>

@@ -6,6 +6,7 @@
   <title>{{windowTitle}} Info</title>
   <link rel="stylesheet" href="css/settings.css" />
   <link rel="stylesheet" href="css/help.css" />
+  <style id="system-ui-css"></style>
 </head>
 <body>
   <main class="wrap">
@@ -15,6 +16,8 @@
     <output class="status" id="help-status" hidden></output>
     <ul id="help-list" class="help-list"></ul>
   </main>
+  <p class="app-version" id="app-version" hidden>{{windowTitle}} v{{appVersion}}</p>
+  <script src="js/system-window.js"></script>
   <script src="js/help.js"></script>
 </body>
 </html>

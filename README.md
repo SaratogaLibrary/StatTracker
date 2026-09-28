@@ -38,7 +38,7 @@ After install, settings live in `config.toml` inside the chosen storage director
 | `autostart` | `true` | Launch at login |
 | `always_on_top` | `false` | Pin toggle; unfocused opacity applies only when this is on |
 | `unfocused_opacity` | `55` | 0–100 |
-| `update_mode` | `notify` | `notify` or `silent` |
+| `update_mode` | `notify` | `notify`, `silent`, or `manual` |
 | `active_template` | `horizontal` | Folder name under `templates/` |
 
 The application interface supports browser-style zooming. Zoom (Ctrl/Cmd `+` `-` `0`) is session-only and resets to 100% on every application startup. The widget window is not user-resizable; size comes from the active template.
@@ -48,6 +48,8 @@ The application interface supports browser-style zooming. Zoom (Ctrl/Cmd `+` `-`
 Bundled templates (`horizontal`, `vertical`) are copied into the storage `templates/` folder (the path chosen in Settings). Installed/release builds do not overwrite those copies, so customizations survive. `npm run dev` recopies the bundled templates on each launch so edits in the repo `templates/` folder show up.
 
 Each template is a named folder with `manifest.json`, `index.html`, `style.css`, and `script.js`. Extra folders dropped into the storage `templates/` directory appear in Settings after a refresh. Template HTML, CSS, and JS run in a sandboxed iframe and cannot call Tauri APIs. Front-end JS may use `data-action` / `data-slot` hooks and the host-provided `window.StatTracker` helpers (`recordTally`, `refresh`, `cycleTemplate`, `openSettings`, `openHelp`). There is no `invoke`.
+
+An optional `system-ui.css` in the **active** template folder is loaded into the Settings and Help windows (CSS only; other files such as JS are ignored). Escape closes those windows.
 
 Required hooks:
 

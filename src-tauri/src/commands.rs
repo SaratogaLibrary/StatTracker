@@ -5,7 +5,7 @@ use std::time::Duration;
 use auto_launch::AutoLaunchBuilder;
 use serde::{Deserialize, Serialize};
 use tauri::{
-    AppHandle, LogicalSize, Manager, PhysicalPosition, Size, WindowBuilder, WindowUrl,
+    AppHandle, LogicalSize, Manager, PhysicalPosition, Size, Window, WindowBuilder, WindowUrl,
 };
 
 use crate::api;
@@ -55,6 +55,8 @@ pub struct Bootstrap {
     pub templates: Vec<TemplateInfo>,
     pub default_storage: String,
     pub pending_storage: Option<String>,
+    pub app_version: String,
+    pub system_ui_css: String,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -252,6 +254,15 @@ pub fn build_bootstrap(app: &AppHandle) -> AppResult<Bootstrap> {
     } else {
         None
     };
+    let system_ui_css = if config.storage_directory.is_empty() {
+        String::new()
+    } else {
+        config::read_system_ui_css(
+            Path::new(&config.storage_directory),
+            &config.active_template,
+        )
+        .unwrap_or_default()
+    };
     Ok(Bootstrap {
         configured: config.is_complete(),
         question_types: inner.question_types.clone(),
@@ -273,6 +284,8 @@ pub fn build_bootstrap(app: &AppHandle) -> AppResult<Bootstrap> {
         }),
         config,
         default_storage,
+        app_version: app.package_info().version.to_string(),
+        system_ui_css,
     })
 }
 
@@ -586,6 +599,16 @@ pub async fn open_help(app: AppHandle) -> AppResult<()> {
         .visible(true)
         .center()
         .build()?;
+    Ok(())
+}
+
+const SYSTEM_WINDOW_LABELS: &[&str] = &["settings", "help"];
+
+#[tauri::command]
+pub fn close_system_window(window: Window) -> AppResult<()> {
+    if SYSTEM_WINDOW_LABELS.contains(&window.label()) {
+        window.close()?;
+    }
     Ok(())
 }
 
@@ -996,7 +1019,11 @@ async fn github_notes_since(app: &AppHandle, current: &str, latest: &str) -> Opt
 }
 
 #[tauri::command]
-pub async fn check_updates(app: AppHandle) -> AppResult<Option<UpdateNotice>> {
+pub async fn check_updates(
+    app: AppHandle,
+    interactive: Option<bool>,
+) -> AppResult<Option<UpdateNotice>> {
+    let interactive = interactive.unwrap_or(false);
     let mode = {
         let state = app.state::<AppState>();
         let inner = state
@@ -1009,10 +1036,13 @@ pub async fn check_updates(app: AppHandle) -> AppResult<Option<UpdateNotice>> {
             .map(|config| config.update_mode.clone())
             .unwrap_or_else(|| "notify".into())
     };
+    if !interactive && mode == "manual" {
+        return Ok(None);
+    }
     match app.updater().check().await {
         Ok(update) => {
             if update.is_update_available() {
-                if mode == "silent" {
+                if !interactive && mode == "silent" {
                     update
                         .download_and_install()
                         .await
@@ -1036,6 +1066,7 @@ pub async fn check_updates(app: AppHandle) -> AppResult<Option<UpdateNotice>> {
             }
             Ok(None)
         }
+        Err(err) if interactive => Err(AppError::Message(err.to_string())),
         Err(_) => Ok(None),
     }
 }

@@ -5,9 +5,13 @@
   const deskStatus = document.getElementById("desk-status");
   const formStatus = document.getElementById("form-status");
   const saveButton = document.getElementById("save");
+  const updateModeSelect = document.getElementById("update_mode");
+  const updateModeHint = document.getElementById("update-mode-hint");
+  const checkUpdatesButton = document.getElementById("check-updates");
 
   let desks = [];
   let invoke = null;
+  let dialog = null;
 
   async function whenTauriReady() {
     for (let attempt = 0; attempt < 80; attempt += 1) {
@@ -26,6 +30,75 @@
       node.value = value ?? "";
     }
   };
+
+  function normalizeUpdateMode(mode) {
+    if (mode === "silent" || mode === "manual") {
+      return mode;
+    }
+    return "notify";
+  }
+
+  function syncUpdateModeUi() {
+    const mode = normalizeUpdateMode(updateModeSelect.value);
+    updateModeSelect.value = mode;
+    checkUpdatesButton.hidden = mode !== "manual";
+    if (mode === "silent") {
+      updateModeHint.textContent =
+        "Updates download and install on startup without asking.";
+    } else if (mode === "manual") {
+      updateModeHint.textContent =
+        "StatTracker will not check on its own. Use the button to look for a newer GitHub release.";
+    } else {
+      updateModeHint.textContent =
+        "Notify shows GitHub release notes for versions newer than this computer.";
+    }
+  }
+
+  async function promptUpdate(notice) {
+    const version = notice?.version || notice;
+    const current = String(notice?.current_version || notice?.currentVersion || "").replace(
+      /^v/i,
+      "",
+    );
+    const notes = String(notice?.notes || "").trim();
+    let message = `StatTracker ${version} is available`;
+    if (current && current !== String(version).replace(/^v/i, "")) {
+      message += ` (you have ${current})`;
+    }
+    message += ". Install it now?";
+    if (notes) {
+      message += `\n\n${notes}`;
+    }
+    const accepted = await dialog.ask(message, {
+      title: "Update available",
+      type: "info",
+    });
+    if (accepted) {
+      await invoke("install_update");
+    }
+  }
+
+  async function checkForUpdates() {
+    checkUpdatesButton.disabled = true;
+    try {
+      const notice = await invoke("check_updates", { interactive: true });
+      if (notice) {
+        await promptUpdate(notice);
+      } else {
+        await dialog.message("StatTracker is up to date.", {
+          title: "Updates",
+          type: "info",
+        });
+      }
+    } catch (error) {
+      await dialog.message(String(error), {
+        title: "Updates",
+        type: "error",
+      });
+    } finally {
+      checkUpdatesButton.disabled = false;
+    }
+  }
 
   function populateDesks(list, selectedId) {
     desks = list;
@@ -84,6 +157,7 @@
 
   async function hydrate() {
     const bootstrap = await invoke("get_bootstrap");
+    window.StatTrackerSystemWindow?.applyFromBootstrap(bootstrap);
     const config = bootstrap.config;
     fill("base_url", config.base_url);
     fill("org_name", config.org_name);
@@ -95,7 +169,8 @@
     document.getElementById("autostart").checked = config.autostart !== false;
     document.getElementById("always_on_top").checked = Boolean(config.always_on_top);
     document.getElementById("inactivity_enabled").checked = Boolean(config.inactivity_enabled);
-    document.getElementById("update_mode").value = config.update_mode === "silent" ? "silent" : "notify";
+    updateModeSelect.value = normalizeUpdateMode(config.update_mode);
+    syncUpdateModeUi();
     populateTemplates(bootstrap.templates, config.active_template || "vertical");
     if (bootstrap.last_error && !bootstrap.question_types.length) {
       formStatus.textContent = bootstrap.last_error;
@@ -112,8 +187,17 @@
   async function start() {
     const api = await whenTauriReady();
     invoke = api.tauri.invoke;
+    dialog = api.dialog;
+    window.StatTrackerSystemWindow?.bindEscapeToClose(invoke);
+    updateModeSelect.addEventListener("change", syncUpdateModeUi);
+    checkUpdatesButton.addEventListener("click", () => {
+      checkForUpdates().catch((error) => {
+        formStatus.textContent = String(error);
+      });
+    });
     await api.event.listen("config-saved", (event) => {
       const bootstrap = event.payload || {};
+      window.StatTrackerSystemWindow?.applyFromBootstrap(bootstrap);
       if (bootstrap.config?.active_template) {
         templateSelect.value = bootstrap.config.active_template;
       }
@@ -176,7 +260,7 @@
             deskName: desk.name,
             orgName: document.getElementById("org_name").value.trim(),
             windowTitle: document.getElementById("window_title").value.trim(),
-            updateMode: document.getElementById("update_mode").value,
+            updateMode: normalizeUpdateMode(updateModeSelect.value),
             autostart: document.getElementById("autostart").checked,
             alwaysOnTop: document.getElementById("always_on_top").checked,
             unfocusedOpacity: Number(document.getElementById("unfocused_opacity").value),

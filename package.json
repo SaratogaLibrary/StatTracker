@@ -1,6 +1,6 @@
 {
   "name": "StatTracker",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Chromeless desktop widget for recording reference desk question tallies",
   "scripts": {

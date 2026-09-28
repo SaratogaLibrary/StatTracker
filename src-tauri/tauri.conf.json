@@ -1,7 +1,7 @@
 {
   "package": {
     "productName": "StatTracker",
-    "version": "0.1.2"
+    "version": "0.1.3"
   },
   "build": {
     "distDir": "../ui",
@@ -35,6 +35,7 @@
       }
     },
     "bundle": {
+	  "targets": ["app", "dmg", "appimage", "deb", "nsis"],
       "active": true,
       "identifier": "org.sspl.stattracker",
       "icon": [
@@ -51,6 +52,7 @@
       "windows": {
         "digestAlgorithm": "sha256",
         "nsis": {
+		  "installMode": "currentUser",
           "displayLanguageSelector": false,
           "installerIcon": "icons/icon.ico"
         }
