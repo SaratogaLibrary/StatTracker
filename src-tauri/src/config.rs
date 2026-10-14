@@ -271,13 +271,28 @@ pub fn save_config(app: &AppHandle, config: &Config) -> AppResult<()> {
     Ok(())
 }
 
+fn first_existing_dir(candidates: impl IntoIterator<Item = PathBuf>) -> Option<PathBuf> {
+    candidates.into_iter().find(|path| path.is_dir())
+}
+
 pub fn bundled_templates_dir(app: &AppHandle) -> PathBuf {
+    let mut candidates = Vec::new();
     if let Some(path) = app.path_resolver().resolve_resource("templates") {
-        if path.exists() {
-            return path;
+        candidates.push(path);
+    }
+    if let Some(dir) = app.path_resolver().resource_dir() {
+        candidates.push(dir.join("templates"));
+        candidates.push(dir.join("_up_").join("templates"));
+    }
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(parent) = exe.parent() {
+            candidates.push(parent.join("templates"));
+            candidates.push(parent.join("_up_").join("templates"));
         }
     }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../templates")
+    candidates.push(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../templates"));
+    first_existing_dir(candidates)
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../templates"))
 }
 
 pub fn copy_dir_all(src: &Path, dst: &Path) -> AppResult<()> {
@@ -322,6 +337,23 @@ pub fn ensure_user_templates(app: &AppHandle, storage: &Path) -> AppResult<PathB
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bundled_templates_prefer_existing_up_folder() {
+        let root = std::env::temp_dir().join(format!(
+            "stattracker-bundled-templates-{}",
+            std::process::id()
+        ));
+        let missing = root.join("templates");
+        let bundled = root.join("_up_").join("templates");
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(&bundled).unwrap();
+        assert_eq!(
+            first_existing_dir([missing, bundled.clone()]).as_deref(),
+            Some(bundled.as_path())
+        );
+        let _ = fs::remove_dir_all(&root);
+    }
 
     #[test]
     fn template_ids_must_be_a_single_normal_component() {
